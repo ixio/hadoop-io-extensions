@@ -1,0 +1,14 @@
+# Run using docker, not a VM
+sudo: false
+
+# Cache maven downloaded packages
+cache:
+  directories:
+    - $HOME/.m2
+
+# Now the actual core of the script
+language: java
+
+# Send notifs to slack
+#notifications:
+#  slack:
