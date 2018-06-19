@@ -49,6 +49,8 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
  *        (fail by default, can be skip of fill. If fill is chosen, then next property needs to be defined)</li>
  *     <li>FixedLengthWithOffsetInputFormat.setPartialLastRecordFillValue(conf, partialLastRecordFillValue);<br>
  *         (The byte value that should be used to fill partial last record if fill as chosen above)</li>
+ *     <li>FixedLengthWithOffsetInputFormat.setShiftRecordKeyByOffset(conf, shiftRecordKeyByOffset);<br>
+ *         (true if record keys are to be shifted by offset, false for them to start with beginning of file)</li>
  * </ul>
  *
  * @see FixedLengthWithOffsetRecordReader
@@ -72,10 +74,11 @@ public class FixedLengthWithOffsetInputFormat
     public static final String PARTIAL_LAST_RECORD_ACTION_SKIP = "skip";
     public static final String PARTIAL_LAST_RECORD_ACTION_FILL = "fill";
 
-
     public static final String PARTIAL_LAST_RECORD_FILL_VALUE =
             "fixedlengthwithoffsetinputformat.partiallastrecord.fillvalue";
 
+    public static final String SHIFT_RECORD_KEY_BY_OFFSET =
+            "fixedlengthwithoffsetinputformat.recordkey.shiftbyoffset";
 
     /**
      * Set the size of the file header to skip
@@ -155,6 +158,26 @@ public class FixedLengthWithOffsetInputFormat
         return (byte)conf.getInt(PARTIAL_LAST_RECORD_FILL_VALUE, 0);
     }
 
+    /**
+     * Set the value to have record-key shifted by offset or start at beginning of file
+     * @param conf configuration
+     * @param shiftRecordKeyByOffset Whether to shift or not
+     */
+    public static void setShiftRecordKeyByOffset(
+            Configuration conf, boolean shiftRecordKeyByOffset) {
+        conf.setBoolean(SHIFT_RECORD_KEY_BY_OFFSET, shiftRecordKeyByOffset);
+    }
+
+    /**
+     * Get the value to shift record-key by offset or not
+     * @param conf configuration
+     * @return true if record-key is shifted by offset (meaning it starts at 0)
+     *         false if it starts at the beginning of file (meaning it starts at offset + 1)
+     *         Default to true if unset.
+     */
+    public static boolean getShiftRecordKeyByOffset(Configuration conf) {
+        return conf.getBoolean(SHIFT_RECORD_KEY_BY_OFFSET, true);
+    }
 
 
     @Override
@@ -162,10 +185,12 @@ public class FixedLengthWithOffsetInputFormat
     createRecordReader(InputSplit split, TaskAttemptContext context)
             throws IOException, InterruptedException {
 
-        int recordLength = getRecordLength(context.getConfiguration());
-        long offsetSize = getOffsetSize(context.getConfiguration());
-        String partialLastRecordAction = getPartialLastRecordAction(context.getConfiguration());
-        byte partialLastRecordFillValue = getPartialLastRecordFillValue(context.getConfiguration());
+        Configuration conf = context.getConfiguration();
+        int recordLength = getRecordLength(conf);
+        long offsetSize = getOffsetSize(conf);
+        String partialLastRecordAction = getPartialLastRecordAction(conf);
+        byte partialLastRecordFillValue = getPartialLastRecordFillValue(conf);
+        boolean shiftRecordKeyByOffset = getShiftRecordKeyByOffset(conf);
 
         List<String> errors = new ArrayList<>();
 
@@ -197,7 +222,12 @@ public class FixedLengthWithOffsetInputFormat
                         partialLastRecordAction.toUpperCase());
 
         return new FixedLengthWithOffsetRecordReader(
-                offsetSize, recordLength, partialLastRecordActionEnum, partialLastRecordFillValue);
+                offsetSize,
+                recordLength,
+                partialLastRecordActionEnum,
+                partialLastRecordFillValue,
+                shiftRecordKeyByOffset
+        );
     }
 
     @Override

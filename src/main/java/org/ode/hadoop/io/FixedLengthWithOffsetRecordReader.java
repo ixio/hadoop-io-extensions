@@ -43,8 +43,10 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
  * A reader to read fixed length records from a split.
  * It offers the possibility to skip a header of at the beginning of files and
  * either fail, skip or fill in case a files ends over a partial record.
+ * It also offers the possibility either shift the records' key by offset or not.
  *
- * Record offset is returned as key and the record as bytes is returned in value.
+ * Record offset-in-file is returned as key (possibly shifted) and the bytes-array
+ * is returned as value.
  *
  * This file is a modified copy of
  *   [[org.apache.hadoop.mapreduce.lib.input.FixedLengthRecordReader]]
@@ -64,6 +66,7 @@ public class FixedLengthWithOffsetRecordReader
     private int recordLength;
     private PartialLastRecordAction partialLastRecordAction;
     private byte partialLastRecordFill;
+    private boolean shiftRecordKeyByOffset;
 
     private long fileLength;
     private long start;
@@ -81,25 +84,13 @@ public class FixedLengthWithOffsetRecordReader
             long offsetSize,
             int recordLength,
             PartialLastRecordAction partialLastRecordAction,
-            byte partialLastRecordFill) {
+            byte partialLastRecordFill,
+            boolean shiftRecordKeyByOffset) {
         this.offsetSize = offsetSize;
         this.recordLength = recordLength;
         this.partialLastRecordAction = partialLastRecordAction;
         this.partialLastRecordFill = partialLastRecordFill;
-    }
-
-    public FixedLengthWithOffsetRecordReader(long offsetSize, int recordLength,
-            PartialLastRecordAction partialLastRecordAction) throws IOException {
-        this(offsetSize, recordLength, partialLastRecordAction, (byte)0);
-        if (PartialLastRecordAction.FILL != partialLastRecordAction) {
-            throw new IOException("partialLastRecordAction is not to be FILL " +
-                    "when initializing without partialLastRecordFill.");
-        }
-
-    }
-
-    public FixedLengthWithOffsetRecordReader(long offsetSize, int recordLength) {
-        this(offsetSize, recordLength, PartialLastRecordAction.FAIL, (byte)0);
+        this.shiftRecordKeyByOffset = shiftRecordKeyByOffset;
     }
 
     @Override
@@ -192,7 +183,13 @@ public class FixedLengthWithOffsetRecordReader
         boolean dataRead = false;
         byte[] record = value.getBytes();
         if (numRecordsRemainingInSplit > 0) {
-            key.set(pos);
+            // Set key to either pos or pos-offset
+            if (this.shiftRecordKeyByOffset) {
+                key.set(pos - offsetSize);
+            } else {
+                key.set(pos);
+            }
+
             int offset = 0;
             int numBytesToRead = recordLength;
             int numBytesRead; // Initialized at 0 by default
@@ -277,11 +274,6 @@ public class FixedLengthWithOffsetRecordReader
                 decompressor = null;
             }
         }
-    }
-
-    // This is called from the old FixedLengthRecordReader API implementation.
-    public long getPos() {
-        return pos;
     }
 
     private long getFilePosition() throws IOException {

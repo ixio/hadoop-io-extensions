@@ -128,7 +128,8 @@ public class WavPcmRecordReader extends RecordReader<LongWritable, TwoDDoubleArr
                 this.recordSizeInFrames * this.channels * this.sampleSizeInBytes,
                 FixedLengthWithOffsetRecordReader.PartialLastRecordAction.valueOf(
                         this.partialLastRecordAction.toString()),
-                this.partialLastRecordZeroFill
+                this.partialLastRecordZeroFill,
+                true // When reading WAVs, we want the record-key to be shifted by offset
                 );
 
     }
