@@ -73,6 +73,7 @@ public class WavPcmRecordReader extends RecordReader<LongWritable, TwoDDoubleArr
 
     // Computed parameters
     private int sampleSizeInBytes;
+    private int frameSizeInBytes;
     private double doubleOffset;
     private double doubleScale;
     private byte partialLastRecordZeroFill;
@@ -107,6 +108,7 @@ public class WavPcmRecordReader extends RecordReader<LongWritable, TwoDDoubleArr
 
         // Computed parameters
         this.sampleSizeInBytes = this.sampleSizeInBits / 8;
+        this.frameSizeInBytes = this.channels * this.sampleSizeInBytes;
 
         // Prepare double-conversion values for signal
         if (this.sampleSizeInBits > 8) {
@@ -252,7 +254,7 @@ public class WavPcmRecordReader extends RecordReader<LongWritable, TwoDDoubleArr
         // Check innerReader nextValue, and load locally after transformation
         if (this.innerReader.nextKeyValue()) {
             this.recordRead += 1;
-            this.key = this.innerReader.getCurrentKey();
+            this.key.set(this.innerReader.getCurrentKey().get() / this.frameSizeInBytes);
             byte[] recordBytes = this.innerReader.getCurrentValue().getBytes();
             if (recordBytes.length % this.channels != 0) {
                 throw new IOException("Record length in bytes " + recordBytes.length

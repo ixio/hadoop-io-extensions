@@ -40,9 +40,10 @@ import java.util.List;
  * The format expects settings to be provided through configuration properties,
  * and validate them against the file header at RecordReader initialization.
  * The data is then read by chunks of size defined by property, and converted
- * on the fly as doubles.
+ * on the fly as doubles.<br>
  * Multiple strategies are available in case the file size is not divisible by
- * the chosen record size (fail, skip or fill, with a specified fill value).
+ * the chosen record size (fail, skip or fill, with a specified fill value).<br>
+ * The record key is the offset from the beginning of data in number of frames.
  * <br><br>
  * Properties to be set:
  * <li>

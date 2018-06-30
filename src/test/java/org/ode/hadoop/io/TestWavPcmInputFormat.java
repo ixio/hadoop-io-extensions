@@ -213,7 +213,7 @@ public class TestWavPcmInputFormat {
                 key = reader.getCurrentKey();
                 value = reader.getCurrentValue();
 
-                assertEquals("Checking key", (long)(recordNumber * recordSizeInFrame * 2),
+                assertEquals("Checking key", (long)(recordNumber * recordSizeInFrame),
                         key.get());
                 DoubleWritable[][] valueArray = (DoubleWritable[][])value.get();
                 records.add(valueArray);
@@ -322,7 +322,7 @@ public class TestWavPcmInputFormat {
                     key = reader.getCurrentKey();
                     value = reader.getCurrentValue();
 
-                    assertEquals("Checking key", (long) (recordNumber * 1000 * 2),
+                    assertEquals("Checking key", (long) (recordNumber * 1000),
                             key.get());
                     DoubleWritable[][] valueArray = (DoubleWritable[][]) value.get();
                     assertEquals("Checking record channels dim:", 1, valueArray.length);
