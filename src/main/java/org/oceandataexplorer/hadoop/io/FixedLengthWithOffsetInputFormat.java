@@ -124,7 +124,7 @@ public class FixedLengthWithOffsetInputFormat
      *                                last record fill value must also be set).
      */
     public static void setPartialLastRecordAction(
-            Configuration conf, String partialLastRecordAction) throws IOException {
+            Configuration conf, String partialLastRecordAction) {
         conf.setStrings(PARTIAL_LAST_RECORD_ACTION, partialLastRecordAction);
     }
 
@@ -179,11 +179,17 @@ public class FixedLengthWithOffsetInputFormat
         return conf.getBoolean(SHIFT_RECORD_KEY_BY_OFFSET, true);
     }
 
-
+    /**
+     *
+     * @param split The split read b the RecordReader
+     * @param context The job context
+     * @return a new RecordReader initialized with the given split and context
+     * @throws IOException in case provided settings are invalid
+     */
     @Override
     public RecordReader<LongWritable, BytesWritable>
     createRecordReader(InputSplit split, TaskAttemptContext context)
-            throws IOException, InterruptedException {
+            throws IOException {
 
         Configuration conf = context.getConfiguration();
         int recordLength = getRecordLength(conf);

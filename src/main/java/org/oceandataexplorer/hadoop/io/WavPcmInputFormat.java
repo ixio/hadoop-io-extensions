@@ -46,13 +46,13 @@ import java.util.List;
  * The record key is the offset from the beginning of data in number of frames.
  * <br><br>
  * Properties to be set:
- * <li>
- *     <ul>WavPcmInputFormat.setSampleRate</ul>
- *     <ul>WavPcmInputFormat.setChannels</ul>
- *     <ul>WavPcmInputFormat.setSampleSizeInBits</ul>
- *     <ul>WavPcmInputFormat.setRecordSizeInFrames</ul>
- *     <ul>WavPcmInputFormat.setPartialLastRecordAction -- (default to fail)</ul>
- * </li>
+ * <ul>
+ *     <li>WavPcmInputFormat.setSampleRate</li>
+ *     <li>WavPcmInputFormat.setChannels</li>
+ *     <li>WavPcmInputFormat.setSampleSizeInBits</li>
+ *     <li>WavPcmInputFormat.setRecordSizeInFrames</li>
+ *     <li>WavPcmInputFormat.setPartialLastRecordAction -- (default to fail)</li>
+ * </ul>
  * <br><br>
  *
  * @see WavPcmRecordReader
@@ -161,7 +161,7 @@ public class WavPcmInputFormat extends FileInputFormat<LongWritable, TwoDDoubleA
      *                                or fill-with-0).
      */
     public static void setPartialLastRecordAction(
-            Configuration conf, String partialLastRecordAction) throws IOException {
+            Configuration conf, String partialLastRecordAction) {
         conf.setStrings(PARTIAL_LAST_RECORD_ACTION, partialLastRecordAction);
     }
 
@@ -174,10 +174,17 @@ public class WavPcmInputFormat extends FileInputFormat<LongWritable, TwoDDoubleA
         return conf.get(PARTIAL_LAST_RECORD_ACTION, PARTIAL_LAST_RECORD_ACTION_FAIL);
     }
 
+    /**
+     *
+     * @param split The split read b the RecordReader
+     * @param context The job context
+     * @return a new RecordReader initialized with the given split and context
+     * @throws IOException in case provided settings are invalid or don't match the sound file
+     */
     @Override
     public RecordReader<LongWritable, TwoDDoubleArrayWritable>
     createRecordReader(InputSplit split, TaskAttemptContext context)
-            throws IOException, InterruptedException {
+            throws IOException {
 
         float sampleRate = getSampleRate(context.getConfiguration());
         int channels = getChannels(context.getConfiguration());

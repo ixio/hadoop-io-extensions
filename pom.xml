@@ -3,13 +3,49 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.ode</groupId>
+    <groupId>org.oceandataexplorer</groupId>
     <artifactId>hadoop-io-extensions</artifactId>
     <version>0.4</version>
     <packaging>jar</packaging>
-    <name>hadoop-io-extensions</name>
+
+    <name>${project.groupId}:${project.artifactId}</name>
+    <description>Hadoop InputFormats for scientific purposes</description>
     <url>https://github.com/Project-ODE/hadoop-io-extensions</url>
 
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <organization>
+        <name>Ocean Data Explorer</name>
+        <url>https://github.com/Project-ODE</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <name>Joseph Allemandou</name>
+            <email>oceandataexplorer@gmail.com</email>
+            <url>https://github.com/jobar</url>
+            <organization>Ocean Data Explorer</organization>
+            <organizationUrl>https://github.com/Project-ODE</organizationUrl>
+        </developer>
+        <developer>
+            <name>Alexandre Degurse</name>
+            <email>oceandataexplorer@gmail.com</email>
+            <url>https://github.com/Alex2242</url>
+            <organization>Ocean Data Explorer</organization>
+            <organizationUrl>https://github.com/Project-ODE</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/Project-ODE/hadoop-io-extensions.git</connection>
+        <developerConnection>scm:git:ssh://github.com:Project-ODE/hadoop-io-extensions.git</developerConnection>
+        <url>https://github.com/Project-ODE/hadoop-io-extensions/tree/master</url>
+    </scm>
 
     <dependencies>
 
@@ -88,30 +124,10 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.5.1</version>
                 <configuration>
-                    <tagNameFormat>v@{project.version}</tagNameFormat>
-                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <tagNameFormat>@{project.version}</tagNameFormat>
                 </configuration>
             </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>2.0</version>
-                <configuration>
-                    <shadedArtifactAttached>false</shadedArtifactAttached>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -126,23 +142,33 @@
                     <target>${java.version}</target>
                 </configuration>
             </plugin>
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
 
     </build>
-
-    <reporting>
-        <plugins>
-            <plugin>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.9</version>
-                <configuration>
-                    <linksource>true</linksource>
-                </configuration>
-            </plugin>
-        </plugins>
-    </reporting>
-
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
