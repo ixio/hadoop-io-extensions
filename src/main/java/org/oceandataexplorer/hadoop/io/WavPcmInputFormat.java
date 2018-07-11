@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.ode.hadoop.io;
+package org.oceandataexplorer.hadoop.io;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;

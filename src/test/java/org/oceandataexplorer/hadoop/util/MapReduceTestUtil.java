@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.ode.hadoop.util;
+package org.oceandataexplorer.hadoop.util;
 
 import java.io.DataInput;
 import java.io.DataOutput;

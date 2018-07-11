@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.ode.hadoop.io;
+package org.oceandataexplorer.hadoop.io;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.ode.hadoop.io;
+package org.oceandataexplorer.hadoop.io;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -29,7 +29,7 @@ import org.apache.hadoop.mapreduce.task.MapContextImpl;
 import org.apache.hadoop.util.ReflectionUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.ode.hadoop.util.MapReduceTestUtil;
+import org.oceandataexplorer.hadoop.util.MapReduceTestUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
