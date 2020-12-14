@@ -142,6 +142,7 @@ public class WavPcmRecordReader extends RecordReader<LongWritable, TwoDDoubleArr
         FileSplit split = (FileSplit) genericSplit;
         Configuration job = context.getConfiguration();
         this.file = split.getPath();
+        LOG.info(s"Reading wav ${this.file}");
         this.recordRead = 0;
         validateAudioParameters(job);
         this.innerReader.initialize(job, split.getStart(), split.getLength(), this.file);
@@ -163,7 +164,7 @@ public class WavPcmRecordReader extends RecordReader<LongWritable, TwoDDoubleArr
         } else {
             inputStream = fileIn;
             this.isCompressed = false;
-            LOG.info("Reading wav header from uncompressed input.");
+            LOG.info("Reading wav header from TESTING input.");
         }
 
         //
