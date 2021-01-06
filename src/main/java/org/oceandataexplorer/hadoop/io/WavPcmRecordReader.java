@@ -16,12 +16,12 @@
 
 package org.oceandataexplorer.hadoop.io;
 
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.DoubleWritable;
@@ -34,6 +34,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.BufferedInputStream;
@@ -142,10 +143,26 @@ public class WavPcmRecordReader extends RecordReader<LongWritable, TwoDDoubleArr
         FileSplit split = (FileSplit) genericSplit;
         Configuration job = context.getConfiguration();
         this.file = split.getPath();
-        LOG.info(s"Reading wav ${this.file}");
         this.recordRead = 0;
         validateAudioParameters(job);
-        this.innerReader.initialize(job, split.getStart(), split.getLength(), this.file);
+
+        // https://stackoverflow.com/a/15642211
+        // https://web.archive.org/web/20180126063441/http://www.jsresources.org/examples/SampleRateConverter.java.html
+        FSDataInputStream wavFile = fs.open(this.file);
+        AudioInputStream audioIn = AudioSystem.getAudioInputStream(wavFile);
+        AudioFormat srcFormat = audioIn.getFormat();
+        AudioFormat dstFormat = new AudioFormat(srcFormat.getEncoding(),
+            srcFormat.getSampleRate() / 2,
+            srcFormat.getSampleSizeInBits(),
+            srcFormat.getChannels(),
+            srcFormat.getFrameSize(),
+            srcFormat.getFrameRate() / 2,
+            srcFormat.isBigEndian());
+        AudioInputStream convertedIn = AudioSystem.getAudioInputStream(dstFormat, audioIn);
+
+        FSDataOutputStream resampledWavFile = fs.create(this.file + "_tmp");
+        AudioSystem.write(convertedIn, AudioFileFormat.Type.WAVE, resampledWavFile);
+        this.innerReader.initialize(job, split.getStart(), split.getLength(), this.file + "_tmp");
     }
 
     public void validateAudioParameters(Configuration job) throws IOException {
@@ -164,7 +181,7 @@ public class WavPcmRecordReader extends RecordReader<LongWritable, TwoDDoubleArr
         } else {
             inputStream = fileIn;
             this.isCompressed = false;
-            LOG.info("Reading wav header from TESTING input.");
+            LOG.info("Reading wav header from uncompressed input.");
         }
 
         //
